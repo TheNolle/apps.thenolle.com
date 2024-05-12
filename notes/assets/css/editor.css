@@ -1,0 +1,24 @@
+div.editor-container {
+    position: relative;
+    height: 100vh;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    overflow: hidden;
+}
+
+div.editor-container::before {
+    content: attr(data-note-title);
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    color: #9ca3af;
+    text-align: right;
+}
+
+div.editor-container[data-currently-editing = true]::before {
+    content: attr(data-note-title) " (Editing)";
+}
+
+div.editor-container>div.ql-container {
+    height: calc(100% - 46px);
+}

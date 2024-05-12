@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>2048 | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="2048">
+    <meta property="og:description" content="2048 is a single-player sliding block puzzle game. The game's objective is to slide numbered tiles on a grid to combine them to create a tile with the number 2048.">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/2048-og.png">
+    <meta property="og:url" content="https://apps.thenolle.com/2048">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #fff;
+            background-color: #101113;
+        }
+
+        h2 {
+            display: none;
+        }
+
+        h2>.score {
+            color: #E5204C;
+        }
+
+        .board {
+            display: none;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            flex-wrap: wrap;
+            border: 6px solid #bbada0;
+            background-color: #cdc1b5;
+        }
+
+        .board>.tile {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            border: 5px solid #bbada0;
+        }
+
+        .board>.tile.x2 {
+            color: #727371;
+            background-color: #eee4da;
+        }
+
+        .board>.tile.x4 {
+            color: #727371;
+            background-color: #ece0ca;
+        }
+
+        .board>.tile.x8 {
+            color: #fff;
+            background-color: #f4b17a;
+        }
+
+        .board>.tile.x16 {
+            color: #fff;
+            background-color: #f59575;
+        }
+
+        .board>.tile.x32 {
+            color: #fff;
+            background-color: #f57c5f;
+        }
+
+        .board>.tile.x64 {
+            color: #fff;
+            background-color: #f65d3b;
+        }
+
+        .board>.tile.x128 {
+            color: #fff;
+            background-color: #edce71;
+        }
+
+        .board>.tile.x256 {
+            color: #fff;
+            background-color: #edcc63;
+        }
+
+        .board>.tile.x512 {
+            color: #fff;
+            background-color: #edc651;
+        }
+
+        .board>.tile.x1024 {
+            color: #fff;
+            background-color: #eec744;
+        }
+
+        .board>.tile.x2048 {
+            color: #fff;
+            background-color: #ecc230;
+        }
+
+        .board>.tile.x4096 {
+            color: #fff;
+            background-color: #fe3d3d;
+        }
+
+        .board>.tile.x8192 {
+            color: #fff;
+            background-color: #ff2020;
+        }
+
+        .message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #00000040;
+            backdrop-filter: blur(5px);
+        }
+
+        .message>h1 {
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .message>h2 {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .message>button {
+            cursor: pointer;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid #E5204C;
+            color: #fff;
+            background-color: #E5204C;
+            transition: background-color 250ms;
+        }
+
+        .message>button:hover {
+            background-color: #46081e;
+        }
+
+        @media screen and (max-height: 600px) {
+            .board {
+                grid-template-columns: repeat(4, 80px);
+                grid-template-rows: repeat(4, 80px);
+            }
+
+            .board>.tile {
+                font-size: 30px;
+            }
+
+            .message>h1 {
+                font-size: 30px;
+            }
+
+            .message>h2 {
+                font-size: 20px;
+            }
+
+            .message>button {
+                padding: 10px 15px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Score: <span class="score"></span></h2>
+    <div class="board"></div>
+    <div class="message">
+        <h1>Game Over!</h1>
+        <h2>Final Score: <span class="score"></span></h2>
+        <button>Play Again</button>
+    </div>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', () => {
+        const score = document.querySelectorAll('.score')
+        score.forEach(element => element.parentElement.style.display = 'inline-block')
+        const board = document.querySelector('.board')
+        board.style.display = 'grid'
+        const message = document.querySelector('.message')
+        const button = message.querySelector('button')
+
+        const meta = {
+            gameOver: false,
+            score: 0,
+            rows: 4,
+            cols: 4,
+            board: []
+        }
+
+        function resetGame() {
+            message.style.display = 'none'
+            meta.gameOver = false
+            meta.score = 0
+            score.forEach(element => element.textContent = meta.score)
+            while (board.firstChild) board.removeChild(board.firstChild)
+            meta.board = Array(meta.rows).fill().map(() => Array(meta.cols).fill(0))
+            for (let row = 0; row < meta.rows; row++) {
+                for (let col = 0; col < meta.cols; col++) {
+                    const tile = document.createElement('span')
+                    tile.className = 'tile'
+                    tile.id = `${row}-${col}`
+                    updateTile(tile, meta.board[row][col])
+                    board.appendChild(tile)
+                }
+            }
+            randomTile()
+            randomTile()
+        }
+        resetGame()
+
+        function randomTile() {
+            const emptyTiles = []
+            for (let row = 0; row < meta.rows; row++) {
+                for (let col = 0; col < meta.cols; col++) {
+                    if (meta.board[row][col] === 0) emptyTiles.push({ row, col })
+                }
+            }
+            if (emptyTiles.length === 0) return
+            const randomIndex = Math.floor(Math.random() * emptyTiles.length)
+            const { row, col } = emptyTiles[randomIndex]
+            meta.board[row][col] = Math.random() < 0.9 ? 2 : 4
+            const tile = document.getElementById(`${row}-${col}`)
+            updateTile(tile, meta.board[row][col])
+        }
+
+        function updateTile(tile, value) {
+            tile.textContent = ''
+            tile.removeAttribute('class')
+            tile.classList.add('tile')
+            if (value > 0) {
+                tile.textContent = value
+                if (value <= 4096) tile.classList.add(`x${value}`)
+                else tile.classList.add('x8192')
+            }
+        }
+
+        function filterZero(row) {
+            return row.filter(value => value != 0)
+        }
+
+        function slideRow(row) {
+            row = filterZero(row)
+            for (let i = 0; i < row.length; i++) {
+                if (row[i] === row[i + 1]) {
+                    row[i] *= 2
+                    row[i + 1] = 0
+                    meta.score += row[i]
+                    score.forEach(element => element.textContent = meta.score)
+                }
+            }
+            row = filterZero(row)
+            while (row.length < meta.cols) row.push(0)
+            return row
+        }
+
+        function slide(direction) {
+            if (meta.gameOver) return
+            if (direction === 'left') {
+                for (let row = 0; row < meta.rows; row++) {
+                    let Brow = meta.board[row]
+                    Brow = slideRow(Brow)
+                    meta.board[row] = Brow
+                    for (let col = 0; col < meta.cols; col++) {
+                        const tile = document.getElementById(`${row}-${col}`)
+                        updateTile(tile, meta.board[row][col])
+                    }
+                }
+            } else if (direction == 'right') {
+                for (let row = 0; row < meta.rows; row++) {
+                    let Brow = meta.board[row]
+                    Brow.reverse()
+                    Brow = slideRow(Brow)
+                    Brow.reverse()
+                    meta.board[row] = Brow
+                    for (let col = 0; col < meta.cols; col++) {
+                        const tile = document.getElementById(`${row}-${col}`)
+                        updateTile(tile, meta.board[row][col])
+                    }
+                }
+            } else if (direction == 'up') {
+                for (let col = 0; col < meta.cols; col++) {
+                    let Ccol = meta.board.map(row => row[col])
+                    Ccol = slideRow(Ccol)
+                    for (let row = 0; row < meta.rows; row++) {
+                        meta.board[row][col] = Ccol[row]
+                        const tile = document.getElementById(`${row}-${col}`)
+                        updateTile(tile, meta.board[row][col])
+                    }
+                }
+            } else if (direction == 'down') {
+                for (let col = 0; col < meta.cols; col++) {
+                    let Ccol = meta.board.map(row => row[col])
+                    Ccol.reverse()
+                    Ccol = slideRow(Ccol)
+                    Ccol.reverse()
+                    for (let row = 0; row < meta.rows; row++) {
+                        meta.board[row][col] = Ccol[row]
+                        const tile = document.getElementById(`${row}-${col}`)
+                        updateTile(tile, meta.board[row][col])
+                    }
+                }
+            }
+            if (!isGameOver()) randomTile()
+            else {
+                meta.gameOver = true
+                message.style.display = 'flex'
+                message.querySelector('.score').textContent = meta.score
+            }
+        }
+
+        function isGameOver() {
+            for (let row = 0; row < meta.rows; row++) {
+                for (let col = 0; col < meta.cols; col++) {
+                    if (meta.board[row][col] === 0) return false
+                }
+            }
+            for (let row = 0; row < meta.rows; row++) {
+                for (let col = 0; col < meta.cols - 1; col++) {
+                    if (meta.board[row][col] === meta.board[row][col + 1]) return false
+                }
+            }
+            for (let col = 0; col < meta.cols; col++) {
+                for (let row = 0; row < meta.rows - 1; row++) {
+                    if (meta.board[row][col] === meta.board[row + 1][col]) return false
+                }
+            }
+            return true
+        }
+
+        function setupTouchEvents() {
+            let startX, startY, endX, endY
+            function handleTouchStart(event) {
+                startX = event.touches[0].clientX
+                startY = event.touches[0].clientY
+            }
+            function handleTouchEnd(event) {
+                endX = event.changedTouches[0].clientX
+                endY = event.changedTouches[0].clientY
+                const diffX = endX - startX
+                const diffY = endY - startY
+                const absDiffX = Math.abs(diffX)
+                const absDiffY = Math.abs(diffY)
+                if (absDiffX > absDiffY) {
+                    if (diffX > 0) slide('right')
+                    else slide('left')
+                } else {
+                    if (diffY > 0) slide('down')
+                    else slide('up')
+                }
+            }
+            document.addEventListener('touchstart', handleTouchStart, { passive: true })
+            document.addEventListener('touchend', handleTouchEnd, { passive: true })
+        }
+        setupTouchEvents()
+
+        document.addEventListener('keyup', (event) => {
+            event.key === 'ArrowLeft' && slide('left')
+            event.key === 'ArrowRight' && slide('right')
+            event.key === 'ArrowUp' && slide('up')
+            event.key === 'ArrowDown' && slide('down')
+        })
+        button.addEventListener('click', resetGame)
+    })
+</script>
+
+</html>

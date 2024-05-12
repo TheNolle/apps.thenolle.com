@@ -1,0 +1,55 @@
+* {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+    color-scheme: dark;
+}
+
+body {
+    overflow: hidden;
+    color: #ffffff;
+    background-image: url(../img/background.webp);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+}
+
+::-webkit-scrollbar {
+    width: 0.5rem !important;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 0.375rem !important;
+    background-color: #555555 !important;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent !important;
+}
+
+main {
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    flex-direction: row;
+    background-color: #00000080;
+    backdrop-filter: blur(20px);
+}
+
+main>aside {
+    height: 100%;
+    width: 250px;
+    padding: 0.5rem;
+}
+
+main>div {
+    flex: 1;
+    overflow: auto;
+    border-left: 1px solid #ffffff80;
+    background-color: #18181bbf;
+    backdrop-filter: blur(20px);
+}

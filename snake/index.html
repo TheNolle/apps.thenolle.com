@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Snake | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Snake">
+    <meta property="og:description" content="Play the classic Snake game.">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/snake-og.png">
+    <meta property="og:url" content="https://apps.thenolle.com/snake">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background-color: #101113;
+            user-select: none;
+        }
+
+        .score {
+            display: none;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .board {
+            display: none;
+            height: 400px;
+            width: 400px;
+            border-radius: 4px;
+            border: 2px solid #E5204C;
+            background-color: #101113;
+        }
+
+        .controls {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .controls>button {
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 4px;
+            color: #fff;
+            background-color: #E5204C;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls>button:hover,
+        .controls>button:focus {
+            background-color: #FF5A5F;
+        }
+
+        .controls>button:active {
+            background-color: #C41A42;
+        }
+
+        @media screen and (max-width: 480px) {
+            .controls button {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <span class="score">00</span>
+    <canvas class="board"></canvas>
+    <div class="controls">
+        <button data-direction="up" title="Press W or Arrow Up to move up.">↑</button>
+        <button data-direction="left" title="Press A or Arrow Left to move left.">←</button>
+        <button data-direction="right" title="Press D or Arrow Right to move right.">→</button>
+        <button data-direction="down" title="Press S or Arrow Down to move down.">↓</button>
+    </div>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', () => {
+        const score = document.querySelector('.score')
+        score.style.display = 'block'
+        const board = document.querySelector('.board')
+        board.style.display = 'block'
+        const context = board.getContext('2d')
+        const controls = document.querySelector('.controls')
+        controls.style.display = 'flex'
+
+        controls.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', (event) => go(event.target.dataset.direction))
+        })
+        document.addEventListener('keydown', (event) => {
+            (event.key === 'w' || event.key === 'ArrowUp') && go('up');
+            (event.key === 'a' || event.key === 'ArrowLeft') && go('left');
+            (event.key === 'd' || event.key === 'ArrowRight') && go('right');
+            (event.key === 's' || event.key === 'ArrowDown') && go('down');
+        })
+
+        const meta = (function () {
+            const blockSize = 25
+            return {
+                gameOver: false,
+                blockSize,
+                board: {
+                    rows: 20,
+                    cols: 20
+                },
+                snake: {
+                    body: [],
+                    position: {
+                        x: blockSize,
+                        y: blockSize
+                    },
+                    velocity: {
+                        x: 0,
+                        y: 0
+                    }
+                },
+                food: {
+                    position: {
+                        x: 0,
+                        y: 0
+                    }
+                }
+            }
+        })()
+
+        board.width = meta.board.cols * meta.blockSize
+        board.height = meta.board.rows * meta.blockSize
+
+        function placeFood() {
+            meta.food.position.x = Math.floor(Math.random() * meta.board.cols) * meta.blockSize
+            meta.food.position.y = Math.floor(Math.random() * meta.board.rows) * meta.blockSize
+            for (let i = 0; i < meta.snake.body.length; i++)
+                if (meta.snake.body[i].x === meta.food.position.x && meta.snake.body[i].y === meta.food.position.y)
+                    placeFood()
+        }
+        placeFood()
+
+        function go(direction) {
+            switch (direction) {
+                case 'up':
+                    if (meta.snake.velocity.y === 1) return
+                    meta.snake.velocity.x = 0
+                    meta.snake.velocity.y = -1
+                    break
+                case 'left':
+                    if (meta.snake.velocity.x === 1) return
+                    meta.snake.velocity.x = -1
+                    meta.snake.velocity.y = 0
+                    break
+                case 'right':
+                    if (meta.snake.velocity.x === -1) return
+                    meta.snake.velocity.x = 1
+                    meta.snake.velocity.y = 0
+                    break
+                case 'down':
+                    if (meta.snake.velocity.y === -1) return
+                    meta.snake.velocity.x = 0
+                    meta.snake.velocity.y = 1
+                    break
+            }
+        }
+
+        function updateScore() {
+            score.textContent = meta.snake.body.length.toString().padStart(2, '0')
+        }
+
+        function update() {
+            if (meta.gameOver) return
+
+            context.fillStyle = '#0D0E10'
+            context.fillRect(0, 0, board.width, board.height)
+
+            context.fillStyle = '#FF5A5F'
+            context.fillRect(meta.food.position.x, meta.food.position.y, meta.blockSize, meta.blockSize)
+
+            if (meta.snake.position.x === meta.food.position.x && meta.snake.position.y === meta.food.position.y) {
+                meta.snake.body.push({ ...meta.food.position })
+                updateScore()
+                placeFood()
+            }
+
+            for (let i = meta.snake.body.length - 1; i > 0; i--)
+                meta.snake.body[i] = { ...meta.snake.body[i - 1] }
+            if (meta.snake.body.length)
+                meta.snake.body[0] = { ...meta.snake.position }
+
+            meta.snake.position.x += meta.snake.velocity.x * meta.blockSize
+            meta.snake.position.y += meta.snake.velocity.y * meta.blockSize
+            context.fillStyle = '#00CC00'
+            context.fillRect(meta.snake.position.x, meta.snake.position.y, meta.blockSize, meta.blockSize)
+            context.fillStyle = '#00FF00'
+            for (let i = 0; i < meta.snake.body.length; i++)
+                context.fillRect(meta.snake.body[i].x, meta.snake.body[i].y, meta.blockSize, meta.blockSize)
+
+            if (meta.snake.position.x < 0 || meta.snake.position.x >= board.width || meta.snake.position.y < 0 || meta.snake.position.y >= board.height) {
+                meta.gameOver = true
+                alert('Game Over!')
+            }
+
+            for (let i = 0; i < meta.snake.body.length; i++)
+                if (meta.snake.position.x === meta.snake.body[i].x && meta.snake.position.y === meta.snake.body[i].y) {
+                    meta.gameOver = true
+                    alert('Game Over!')
+                }
+        }
+        setInterval(update, 1000 / 7.5)
+    })
+</script>
+
+</html>

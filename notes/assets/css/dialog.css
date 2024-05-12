@@ -1,0 +1,78 @@
+div.dialog-container {
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-color: #00000040;
+    backdrop-filter: blur(2.5px);
+}
+
+div.dialog-container.show {
+    display: flex;
+}
+
+div.dialog-container>div.dialog {
+    width: calc(100% - 2rem);
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 0.375rem;
+    background-color: #18181bbf;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 6px #ffffff1a;
+}
+
+div.dialog-container>div.dialog>h2.dialog-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+div.dialog-container>div.dialog>p.dialog-message {
+    margin: 10px 0;
+    font-size: 1em;
+    color: #d4d4d8;
+}
+
+div.dialog-container>div.dialog>input.dialog-input {
+    width: calc(100% - 40px);
+    padding: 8px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+
+div.dialog-container>div.dialog>div.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    column-gap: 0.25rem;
+    margin-top: 1rem;
+}
+
+div.dialog-container>div.dialog>div.dialog-actions>button {
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s ease-in-out;
+}
+
+div.dialog-container>div.dialog>div.dialog-actions>button:hover,
+div.dialog-container>div.dialog>div.dialog-actions>button:focus {
+    background-color: #52525b !important;
+}
+
+div.dialog-container>div.dialog>div.dialog-actions>button.dialog-confirm {
+    color: #ffffff;
+    background-color: #4caf50;
+}
+
+div.dialog-container>div.dialog>div.dialog-actions>button.dialog-cancel {
+    color: #ffffff;
+    background-color: #f44336;
+}

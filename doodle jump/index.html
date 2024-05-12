@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Doodle Jump | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Doodle Jump">
+    <meta property="og:description"
+        content="Doodle Jump is a popular mobile game developed by Lima Sky. This is a web version of the stripped-down version of the game for everyone to enjoy.">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/doodle%20jump/player-left.png">
+    <meta property="og:url" content="https://apps.thenolle.com/doodle%20jump">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100vh;
+            width: 100vw;
+            color: #fff;
+            background-color: #101113;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .board {
+            display: none;
+            margin: 0 auto;
+            margin-top: 20px;
+            background-image: url(https://cdn.thenolle.com/images/doodle%20jump/background.png);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas class="board"></canvas>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', () => {
+        const board = document.querySelector('.board')
+        board.style.display = 'block'
+        const context = board.getContext('2d')
+
+        const meta = {
+            gameOver: false,
+            score: 0,
+            maxScore: 0,
+            globalOffset: 0,
+            board: { width: 400, height: 750 },
+            player: {
+                size: { width: 46, height: 46 },
+                position: { x: 400 / 2 - 46 / 2, y: 750 * 7 / 8 - 46 },
+                velocity: { gravity: 0.4, initial: -8, x: 0, y: 0 },
+                image: null,
+                images: { left: new Image(), right: new Image() }
+            },
+            platforms: {
+                size: { width: 60, height: 18 },
+                image: new Image(),
+                brokenImage: new Image(),
+                array: []
+            }
+        }
+
+        board.width = meta.board.width
+        board.height = meta.board.height
+
+        meta.player.images.left.src = 'https://cdn.thenolle.com/images/doodle%20jump/player-left.png'
+        meta.player.images.right.src = 'https://cdn.thenolle.com/images/doodle%20jump/player-right.png'
+        meta.player.image = meta.player.images.right
+        meta.player.image.onload = () => context.drawImage(meta.player.image, meta.player.position.x, meta.player.position.y, meta.player.size.width, meta.player.size.height)
+        meta.platforms.image.src = 'https://cdn.thenolle.com/images/doodle%20jump/platform.png'
+        meta.platforms.brokenImage.src = 'https://cdn.thenolle.com/images/doodle%20jump/platform-broken.png'
+
+        meta.player.velocity.y = meta.player.velocity.initial
+
+        function update() {
+            if (meta.gameOver) return
+            context.clearRect(0, 0, meta.board.width, meta.board.height)
+            meta.player.position.x += meta.player.velocity.x
+            if (meta.player.position.x > meta.board.width) meta.player.position.x = -meta.player.size.width
+            else if (meta.player.position.x < -meta.player.size.width) meta.player.position.x = meta.board.width
+            meta.player.velocity.y += meta.player.velocity.gravity
+            meta.player.position.y += meta.player.velocity.y
+            if (checkGameOver()) return
+            context.drawImage(meta.player.image, meta.player.position.x, meta.player.position.y, meta.player.size.width, meta.player.size.height)
+            for (let i = 0; i < meta.platforms.array.length; i++) {
+                const platform = meta.platforms.array[i]
+                if (meta.player.velocity.y < 0 && meta.player.position.y < meta.board.height * 3 / 4) {
+                    const moveAmount = meta.player.velocity.initial
+                    platform.y -= moveAmount
+                    meta.globalOffset += moveAmount
+                }
+                if (detectCollision(meta.player, platform) && meta.player.velocity.y > 0) {
+                    if (platform.broken) {
+                        meta.player.velocity.y = meta.player.velocity.initial
+                        meta.player.position.y = platform.y - meta.player.size.height
+                        setTimeout(() => platform.img = null, 100)
+                    } else {
+                        meta.player.velocity.y = meta.player.velocity.initial
+                        meta.player.position.y = platform.y - meta.player.size.height
+                    }
+                }
+                platform.img && context.drawImage(platform.img, platform.x, platform.y, platform.width, platform.height)
+            }
+            while (meta.platforms.array.length > 0 && (meta.platforms.array[0].y > meta.board.height || meta.platforms.array[0].img === null)) {
+                meta.platforms.array.shift()
+                newPlatform()
+            }
+            updateScore()
+            context.fillStyle = '#000'
+            context.font = '16px Roboto'
+            context.fillText(meta.score, 5, 20)
+        }
+        setInterval(update, 1000 / 60)
+
+        function checkGameOver() {
+            if (meta.player.position.y > meta.board.height) {
+                meta.gameOver = true
+                context.clearRect(0, 0, meta.board.width, meta.board.height)
+                context.fillStyle = '#000'
+                context.fillRect(0, 0, meta.board.width, meta.board.height)
+                context.fillStyle = '#E5204C'
+                context.font = '24px Roboto'
+                context.fillText('Game Over', meta.board.width / 2 - 60, meta.board.height / 2 - 12)
+                context.fillStyle = '#fff'
+                context.font = '16px Roboto'
+                context.fillText('Score: ' + meta.score, meta.board.width / 2 - 40, meta.board.height / 2 + 12)
+                const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
+                context.fillStyle = '#E5204C'
+                if (isTouchDevice) context.fillText('Tap to play again', meta.board.width / 2 - 70, meta.board.height / 2 + 36)
+                else context.fillText('Press Space to play again', meta.board.width / 2 - 90, meta.board.height / 2 + 36)
+                return true
+            }
+            return false
+        }
+
+        function updateScore() {
+            meta.score = Math.floor(Math.max(meta.score, Math.floor(-meta.globalOffset / 10) / 10))
+            meta.maxScore = Math.floor(Math.max(meta.maxScore, meta.score))
+        }
+
+        function placePlatforms() {
+            meta.platforms.array = []
+            let brokenCount = 0
+            const maxBroken = 3
+            meta.platforms.array.push({
+                img: meta.platforms.image,
+                x: meta.board.width / 2 - meta.platforms.size.width / 2,
+                y: meta.board.height * 7 / 8,
+                width: meta.platforms.size.width,
+                height: meta.platforms.size.height,
+                broken: false
+            })
+            for (let i = 0; i < 12; i++) {
+                let platformX = Math.floor(Math.random() * (meta.board.width * 3 / 4))
+                let platformY = meta.board.height - 75 * i - 150
+                let broken = Math.random() < 0.1 && brokenCount < maxBroken
+                if (broken) brokenCount++
+                let platformWidth = meta.platforms.size.width
+                let platformHeight = meta.platforms.size.height
+                meta.platforms.array.push({
+                    img: broken ? meta.platforms.brokenImage : meta.platforms.image,
+                    x: platformX,
+                    y: platformY,
+                    width: platformWidth,
+                    height: platformHeight,
+                    broken
+                })
+            }
+        }
+        placePlatforms()
+
+        function newPlatform() {
+            let platformX = Math.floor(Math.random() * (meta.board.width * 3 / 4))
+            let platformY = -meta.platforms.size.height
+            let broken = Math.random() < 0.1 && meta.platforms.array.filter(p => p.broken).length < 3
+            let platformWidth = meta.platforms.size.width
+            let platformHeight = meta.platforms.size.height
+            meta.platforms.array.push({
+                img: broken ? meta.platforms.brokenImage : meta.platforms.image,
+                x: platformX,
+                y: platformY,
+                width: platformWidth,
+                height: platformHeight,
+                broken
+            })
+        }
+
+        function move(direction) {
+            if (direction === 'left') {
+                meta.player.velocity.x = -5
+                meta.player.image = meta.player.images.left
+            } else if (direction === 'right') {
+                meta.player.velocity.x = 5
+                meta.player.image = meta.player.images.right
+            }
+        }
+
+        function detectCollision(object1, object2) {
+            return object1.position.x < object2.x + object2.width &&
+                object1.position.x + object1.size.width > object2.x &&
+                object1.position.y < object2.y + object2.height &&
+                object1.position.y + object1.size.height > object2.y
+        }
+
+        function resetGame() {
+            meta.gameOver = false
+            meta.score = 0
+            meta.maxScore = 0
+            meta.player.position.x = meta.board.width / 2 - meta.player.size.width / 2
+            meta.player.position.y = meta.board.height * 7 / 8 - meta.player.size.height
+            meta.player.velocity.y = meta.player.velocity.initial
+            meta.player.velocity.x = 0
+            placePlatforms()
+        }
+
+        document.addEventListener('keydown', event => {
+            (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'q') && move('left');
+            (event.key === 'ArrowRight' || event.key === 'd') && move('right');
+            (event.key === ' ' && meta.gameOver) && resetGame()
+        })
+        document.addEventListener('keyup', () => meta.player.velocity.x = 0)
+        document.addEventListener('touchstart', event => {
+            const touchX = event.touches[0].clientX
+            touchX < meta.board.width / 2 ? move('left') : move('right')
+            if (meta.gameOver) resetGame()
+        })
+        document.addEventListener('touchend', () => meta.player.velocity.x = 0)
+    })
+</script>
+
+</html>

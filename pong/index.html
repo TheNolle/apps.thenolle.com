@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Pong | Nolly's Apps</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="A simple Pong game built with JavaScript.">
+    <meta name="keywords" content="pong, game, javascript, simple, nollysapps">
+    <meta name="author" content="Nolly">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:title" content="Pong">
+    <meta property="og:description" content="A simple Pong game built with JavaScript.">
+    <meta property="og:image" content="favicon.ico">
+    <meta property="og:url" content="https://apps.thenolle.com/pong">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Pong">
+    <meta name="twitter:description" content="A simple Pong game built with JavaScript.">
+    <meta name="twitter:image" content="favicon.ico">
+    <meta name="twitter:image:alt" content="Pong">
+    <meta name="twitter:site" content="@thenolly_">
+    <meta name="twitter:creator" content="@thenolly_">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            color: #fff;
+            background-color: #101113;
+        }
+
+        canvas {
+            display: none;
+            border-radius: 5px;
+            border: 1px solid #fff;
+        }
+
+        #options {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        #options label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        #options input {
+            cursor: pointer;
+            accent-color: #fff;
+        }
+
+        #options input:checked+span {
+            color: #fff;
+        }
+
+        #options span {
+            color: #888;
+        }
+
+        .disclaimer {
+            margin-top: 1rem;
+            color: #ff6961;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="board" width="800" height="600"></canvas>
+    <div id="options">
+        <label>
+            <input type="checkbox" name="ai1" id="ai1" onchange="() => ai1.active = this.checked">
+            <span>Player 1 is an AI</span>
+        </label>
+        <label>
+            <input type="checkbox" name="ai2" id="ai2" onchange="() => ai2.active = this.checked">
+            <span>Player 2 is an AI</span>
+        </label>
+    </div>
+    <p class="disclaimer">The AI is not perfect and may make mistakes. Expect some weird behavior and bugs. This is a simple project and not meant to be perfect. Enjoy! 🎉</p>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.onload = () => {
+        class GameBoard {
+            /**
+             * @param {HTMLCanvasElement} canvas
+             */
+            constructor(canvas) {
+                this.canvas = canvas
+                this.context = this.canvas.getContext('2d')
+                this.width = this.canvas.width
+                this.height = this.canvas.height
+
+                this.isPlaying = false
+                this.gameOver = false
+
+                this.difficulties = {
+                    baby: { playerSpeed: 3, ballSpeed: 1, aiReactionDelay: 700, aiSpeedMultiplier: 0.458795326, predictionError: 100 },
+                    beginner: { playerSpeed: 3, ballSpeed: 1, aiReactionDelay: 500, aiSpeedMultiplier: 0.687192989, predictionError: 75 },
+                    medium: { playerSpeed: 4, ballSpeed: 2, aiReactionDelay: 300, aiSpeedMultiplier: 0.916590652, predictionError: 25 },
+                    hard: { playerSpeed: 5, ballSpeed: 3, aiReactionDelay: 200, aiSpeedMultiplier: 1.005987315, predictionError: 15 },
+                    unholy: { playerSpeed: 6, ballSpeed: 4, aiReactionDelay: 50, aiSpeedMultiplier: 1.098542921, predictionError: 7 }
+                }
+                this.difficulty = this.difficulties.baby
+
+                this.showMenu()
+            }
+
+            displayDifficulty() {
+                const difficultyLength = this.context.measureText(Object.keys(this.difficulties).find(key => this.difficulties[key] === this.difficulty))
+                this.context.clearRect(this.width / 2 - difficultyLength.width / 2 - 5, 41, difficultyLength.width + 10, 22)
+                this.context.fillStyle = '#fff'
+                this.context.font = '15px Arial'
+                this.context.textAlign = 'center'
+                this.context.fillText(Object.keys(this.difficulties).find(key => this.difficulties[key] === this.difficulty), this.width / 2, 60)
+            }
+
+            setDifficulty(difficulty) {
+                if (this.difficulties[difficulty]) {
+                    this.difficulty = this.difficulties[difficulty]
+                    ball.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.difficulty.ballSpeed
+                    ball.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.difficulty.ballSpeed
+                }
+            }
+
+            showMenu() {
+                this.isPlaying = false
+                this.context.clearRect(0, 0, this.width, this.height)
+                this.context.fillStyle = '#fff'
+                this.context.fillRect(this.width / 2 - 150, this.height / 2 - 35, 300, 50)
+                this.context.fillStyle = '#000'
+                this.context.font = '30px Arial'
+                this.context.textAlign = 'center'
+                this.context.fillText('Press Space to Start', this.width / 2, this.height / 2)
+            }
+
+            /**
+             * @param {Player} winner
+             */
+            showEndgame(winner) {
+                this.isPlaying = false
+                this.gameOver = true
+                this.context.clearRect(0, 0, this.width, this.height)
+                this.context.fillStyle = '#fff'
+                this.context.fillRect(this.width / 2 - 150, this.height / 2 - 85, 300, 100)
+                this.context.fillStyle = '#000'
+                this.context.font = '30px Arial'
+                this.context.textAlign = 'center'
+                this.context.fillText('Game Over!', this.width / 2, this.height / 2 - 50)
+                this.context.fillText(`${winner} Wins!`, this.width / 2, this.height / 2)
+            }
+
+            resetGame() {
+                this.gameOver = false
+                this.isPlaying = false
+                player1.score = 0
+                player2.score = 0
+                player1.reset()
+                player2.reset()
+                ball.reset()
+                this.setDifficulty('baby')
+                this.showMenu()
+            }
+
+            clear() {
+                this.isPlaying = true
+                this.context.clearRect(0, 0, this.width, this.height)
+            }
+        }
+
+        class Player {
+            /**
+             * @param {GameBoard} board
+             * @param {boolean} player2
+             */
+            constructor(board, player2 = false) {
+                this.board = board
+
+                this.score = 0
+                this.isPlayer2 = player2
+                this.ai = false
+
+                this.width = 5
+                this.height = 100
+                this.x = player2 ? board.width - this.width * 3 : this.width * 2
+                this.y = board.height / 2 - this.height / 2
+
+                this.velocity = 0
+
+                window.requestAnimationFrame(() => this.update())
+            }
+
+            update() {
+                const clearPadding = 2
+                this.board.context.clearRect(this.x - clearPadding, this.y - clearPadding, this.width + (clearPadding * 2), this.height + (clearPadding * 2))
+                if (this.board.isPlaying)
+                    if (this.y + this.velocity > 0 && this.y + this.velocity < this.board.height - this.height)
+                        this.y += this.velocity
+                this.board.context.fillStyle = '#fff'
+                this.board.context.fillRect(this.x, this.y, this.width, this.height)
+                this.displayScore()
+                if (this.ai) {
+                    ai1 && ai1.update()
+                    ai2 && ai2.update()
+                }
+                requestAnimationFrame(() => this.update())
+            }
+
+            displayScore() {
+                this.board.context.clearRect(this.board.width / 2 - 60, 0, 120, 40)
+                this.board.context.fillStyle = '#fff'
+                this.board.context.font = '20px Arial'
+                this.board.context.textAlign = 'center'
+                this.board.context.fillText(`${this.isPlayer2 ? player1.score : player2.score} - ${this.isPlayer2 ? player2.score : player1.score}`, this.board.width / 2, 30)
+                this.board.context.fillRect(this.board.width / 2 - 30, 40, 60, 1)
+                this.board.displayDifficulty()
+            }
+
+            reset() {
+                this.board.context.clearRect(this.x, this.y, this.width, this.height)
+                this.y = this.board.height / 2 - this.height / 2
+                this.score = 0
+            }
+        }
+
+        class Ball {
+            /**
+             * @param {GameBoard} board
+             */
+            constructor(board) {
+                this.board = board
+
+                this.width = 10
+                this.height = 10
+                this.x = board.width / 2 - this.width / 2
+                this.y = board.height / 2 - this.height / 2
+
+                this.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.board.difficulty.ballSpeed
+                this.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.board.difficulty.ballSpeed
+
+                this.lastDifficultyIncreaseScore = 0
+            }
+
+            start() {
+                this.update()
+            }
+
+            update() {
+                if (!this.board.gameOver) {
+                    this.board.context.clearRect(this.x, this.y, this.width, this.height)
+                    this.x += this.velocityX
+                    this.y += this.velocityY
+                    this.board.context.fillStyle = '#fff'
+                    this.board.context.fillRect(this.x, this.y, this.width, this.height)
+                    if (this.board.isPlaying) {
+                        this.move(player1, player2)
+                        requestAnimationFrame(() => this.update())
+                    }
+                }
+            }
+
+            reset() {
+                this.board.context.clearRect(this.x, this.y, this.width, this.height)
+                this.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.board.difficulty.ballSpeed
+                this.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.board.difficulty.ballSpeed
+                this.x = this.board.width / 2 - this.width / 2
+                this.y = this.board.height / 2 - this.height / 2
+            }
+
+            /**
+             * @param {'horizontal' | 'vertical'} orientation
+             */
+            bounce(orientation = 'horizontal') {
+                if (orientation === 'horizontal')
+                    this.velocityX *= -1
+                else
+                    this.velocityY *= -1
+            }
+
+            /**
+             * @param {Player} player
+             */
+            hit(player) {
+                if (this.x < player.x + player.width && this.x + this.width > player.x)
+                    if (this.y < player.y + player.height && this.y + this.height > player.y)
+                        this.bounce()
+            }
+
+            score() {
+                if (this.x > this.board.width) {
+                    player1.score++
+                    this.reset()
+                }
+                if (this.x < 0) {
+                    player2.score++
+                    this.reset()
+                }
+
+                if (player1.score > 0 || player2.score > 0) {
+                    const scoreDiff = Math.abs(player1.score - player2.score)
+                    const totalScore = player1.score + player2.score
+                    if (totalScore % 3 === 0 && totalScore !== this.lastDifficultyIncreaseScore) {
+                        this.increaseDifficulty()
+                        this.lastDifficultyIncreaseScore = totalScore
+                    }
+                    if (scoreDiff >= 3) {
+                        const winner = player1.score > player2.score ? 'Player 1' : 'Player 2'
+                        this.board.showEndgame(winner)
+                    }
+                }
+            }
+
+            increaseDifficulty() {
+                const difficultyKeys = Object.keys(this.board.difficulties)
+                const currentDifficultyIndex = difficultyKeys.findIndex(key => this.board.difficulties[key] === this.board.difficulty)
+                const nextDifficulty = difficultyKeys[currentDifficultyIndex + 1]
+                if (nextDifficulty)
+                    this.board.setDifficulty(nextDifficulty)
+                this.board.displayDifficulty()
+            }
+
+            collision(player1, player2) {
+                if (this.y < 0 || this.y > this.board.height - this.height)
+                    this.bounce('vertical')
+                this.hit(player1)
+                this.hit(player2)
+            }
+
+            move(player1, player2) {
+                this.score()
+                this.collision(player1, player2)
+            }
+        }
+
+        class AI {
+            /**
+             * @param {Player} player
+             * @param {Ball} ball
+             */
+            constructor(player, ball) {
+                this.player = player
+                this.ball = ball
+
+                this.player.ai = true
+
+                this.active = false
+            }
+
+            start() {
+                if (!this.active) {
+                    this.active = true
+                    this.update()
+                }
+            }
+
+            stop() {
+                this.active = false
+                this.player.ai = false
+            }
+
+            update() {
+                if (this.active) {
+                    let speed = Math.abs(this.ball.velocityY) * this.player.board.difficulty.aiSpeedMultiplier
+                    let reactionDelay = this.player.board.difficulty.aiReactionDelay
+                    let now = performance.now()
+                    if (!this.lastReactionTime)
+                        this.lastReactionTime = now
+                    let shouldMove = now - this.lastReactionTime > reactionDelay
+                    if (shouldMove) {
+                        this.lastReactionTime = now
+                        let futureBallY = this.predictBallPosition()
+                        if (futureBallY < this.player.y + this.player.height / 2)
+                            this.player.velocity = -speed
+                        else if (futureBallY > this.player.y + this.player.height / 2)
+                            this.player.velocity = speed
+                        else
+                            this.player.velocity = 0
+                    }
+                }
+            }
+
+            predictBallPosition() {
+                let framesToPaddle = Math.abs((this.player.x - this.ball.x) / this.ball.velocityX)
+                let futureBallY = this.ball.y + this.ball.velocityY * framesToPaddle
+                let effectiveBoardHeight = this.player.board.height - this.ball.height
+                let errorMargin = this.player.board.difficulty.predictionError
+                let error = Math.floor(Math.random() * (errorMargin + 1)) * (Math.random() < 0.5 ? 1 : -1)
+                futureBallY += error
+                while (futureBallY < 0 || futureBallY > effectiveBoardHeight) {
+                    if (futureBallY < 0)
+                        futureBallY = -futureBallY
+                    else if (futureBallY > effectiveBoardHeight)
+                        futureBallY = effectiveBoardHeight - (futureBallY - effectiveBoardHeight)
+                }
+                return futureBallY
+            }
+        }
+
+        const board = new GameBoard(document.getElementById('board'))
+        const player1 = new Player(board)
+        const player2 = new Player(board, true)
+        const ball = new Ball(board)
+        let ai1, ai2 = null
+
+        document.getElementById('ai1').onchange = (event) => {
+            const checked = event.target.checked
+            if (checked) {
+                ai1 = new AI(player1, ball)
+                ai1.start()
+            } else {
+                ai1.stop()
+                ai1 = null
+            }
+        }
+        document.getElementById('ai2').onchange = (event) => {
+            const checked = event.target.checked
+            if (checked) {
+                ai2 = new AI(player2, ball)
+                ai2.start()
+            } else {
+                ai2.stop()
+                ai2 = null
+            }
+        }
+
+        window.addEventListener('keydown', e => {
+            if (!board.gameOver) {
+                if (!player1.ai) {
+                    if (e.key === 'w') player1.velocity = -board.difficulty.playerSpeed
+                    if (e.key === 's') player1.velocity = board.difficulty.playerSpeed
+                }
+                if (!player2.ai) {
+                    if (e.key === 'ArrowUp') player2.velocity = -board.difficulty.playerSpeed
+                    if (e.key === 'ArrowDown') player2.velocity = board.difficulty.playerSpeed
+                }
+                if (e.key === ' ') {
+                    if (board.isPlaying) {
+                        board.showMenu()
+                        document.getElementById('ai1').disabled = false
+                        document.getElementById('ai2').disabled = false
+                    } else {
+                        document.getElementById('ai1').disabled = true
+                        document.getElementById('ai2').disabled = true
+                        board.clear()
+                        ball.start()
+                        ai1 && ai1.start()
+                        ai2 && ai2.start()
+                    }
+                }
+            } else if (e.key === 'Enter') {
+                board.resetGame()
+            }
+        })
+
+        window.addEventListener('keyup', e => {
+            if (!player1.ai) {
+                if (e.key === 'w' || e.key === 's') player1.velocity = 0
+            }
+            if (!player2.ai) {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') player2.velocity = 0
+            }
+        })
+        document.querySelector('canvas').style.display = 'block'
+    }
+</script>
+
+</html>

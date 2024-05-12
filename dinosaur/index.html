@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Dinosaur | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Dinosaur">
+    <meta property="og:description" content="The chrome dinosaur game but modernized.">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/dinosaur/dino.png">
+    <meta property="og:url" content="https://apps.thenolle.com/dinosaur">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background-color: #101113;
+            user-select: none;
+        }
+
+        h5 {
+            display: none;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: #E5204C;
+        }
+
+        .board {
+            display: none;
+            border-radius: 4px;
+            border: 2px solid #E5204C;
+            background-color: #101113;
+        }
+    </style>
+</head>
+
+<body>
+    <h5>WIP: This game is still in development, please expect bugs and unfinished features.</h5>
+    <canvas class="board"></canvas>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', () => {
+        const h5 = document.querySelector('h5')
+        h5.style.display = 'block'
+        const board = document.querySelector('.board')
+        board.style.display = 'block'
+        const context = board.getContext('2d')
+
+        const meta = {
+            gameStarted: false,
+            gameOver: false,
+            canPlay: false,
+            score: 0,
+            board: {
+                width: 750,
+                height: 250
+            },
+            dino: {
+                image: new Image(),
+                running: {
+                    image1: new Image(),
+                    image2: new Image()
+                },
+                width: 88,
+                height: 94,
+                position: {
+                    x: 50,
+                    y: 250 - 94
+                }
+            },
+            cactus: {
+                height: 70,
+                images: [
+                    { image: new Image(), width: 34 },
+                    { image: new Image(), width: 69 },
+                    { image: new Image(), width: 102 }
+                ],
+                cactuses: []
+            },
+            physics: {
+                velocity: {
+                    x: -8,
+                    y: 0
+                },
+                gravity: 0.4
+            }
+        }
+
+        meta.dino.image.src = 'https://cdn.thenolle.com/images/dinosaur/dino.png'
+        meta.dino.running.image1.src = 'https://cdn.thenolle.com/images/dinosaur/dino-run1.png'
+        meta.dino.running.image2.src = 'https://cdn.thenolle.com/images/dinosaur/dino-run2.png'
+        meta.cactus.images[0].image.src = 'https://cdn.thenolle.com/images/dinosaur/cactus1.png'
+        meta.cactus.images[1].image.src = 'https://cdn.thenolle.com/images/dinosaur/cactus2.png'
+        meta.cactus.images[2].image.src = 'https://cdn.thenolle.com/images/dinosaur/cactus3.png'
+
+        meta.dino.image.onload = imageLoaded
+        meta.dino.running.image1.onload = imageLoaded
+        meta.dino.running.image2.onload = imageLoaded
+        meta.cactus.images.forEach(cactus => cactus.image.onload = imageLoaded)
+
+        let imagesLoaded = 0
+        const totalImages = 6
+
+        function imageLoaded() {
+            imagesLoaded++
+            imagesLoaded === totalImages && showStartScreen()
+        }
+
+        function placeCactus() {
+            const random = Math.random()
+            let cactus
+            if (random > 0.9) cactus = meta.cactus.images[2]
+            else if (random > 0.7) cactus = meta.cactus.images[1]
+            else if (random > 0.5) cactus = meta.cactus.images[0]
+            else return
+            meta.cactus.cactuses.push({
+                img: cactus.image,
+                x: meta.board.width,
+                y: meta.board.height - meta.cactus.height,
+                width: cactus.width,
+                height: meta.cactus.height
+            })
+            if (meta.cactus.cactuses.length > 5) meta.cactus.cactuses.shift()
+        }
+
+        function update() {
+            if (meta.gameOver) return
+
+            context.fillStyle = '#0D0E10'
+            context.fillRect(0, 0, meta.board.width, meta.board.height)
+
+            meta.physics.velocity.y += meta.physics.gravity
+            meta.dino.position.y = Math.min(meta.dino.position.y + meta.physics.velocity.y, meta.board.height - meta.dino.height)
+
+            context.drawImage(meta.dino.image, meta.dino.position.x, meta.dino.position.y, meta.dino.width, meta.dino.height)
+
+            for (let i = 0; i < meta.cactus.cactuses.length; i++) {
+                const cactus = meta.cactus.cactuses[i]
+                cactus.x += meta.physics.velocity.x
+                context.drawImage(cactus.img, cactus.x, cactus.y, cactus.width, cactus.height)
+
+                if (detectCollision(meta.dino, cactus)) {
+                    meta.gameOver = true
+                    meta.dino.image.src = 'https://cdn.thenolle.com/images/dinosaur/dino-dead.png'
+                    meta.dino.image.onload = () => context.drawImage(meta.dino.image, meta.dino.position.x, meta.dino.position.y, meta.dino.width, meta.dino.height)
+                }
+            }
+
+            meta.cactus.cactuses = meta.cactus.cactuses.filter(cactus => cactus.x + cactus.width > 0)
+
+            context.fillStyle = '#fff'
+            context.font = '20px Roboto'
+            context.textAlign = 'right'
+            meta.score++
+            context.fillText(meta.score, 730, 30)
+        }
+
+        function moveDino(direction) {
+            if (meta.gameOver) return
+            if (direction === 'up' && meta.dino.position.y === meta.board.height - meta.dino.height) {
+                meta.physics.velocity.y = -10
+                meta.dino.image.src = 'https://cdn.thenolle.com/images/dinosaur/dino-jump.png'
+                meta.dino.image.onload = () => {
+                    context.drawImage(meta.dino.image, meta.dino.position.x, meta.dino.position.y, meta.dino.width, meta.dino.height)
+                    setTimeout(() => {
+                        meta.dino.image.src = 'https://cdn.thenolle.com/images/dinosaur/dino.png'
+                        meta.dino.image.onload = () => context.drawImage(meta.dino.image, meta.dino.position.x, meta.dino.position.y, meta.dino.width, meta.dino.height)
+                    }, 200)
+                }
+            }
+        }
+
+        function detectCollision(object1, object2) {
+            return object1.position.x < object2.x + object2.width &&
+                object1.position.x + object1.width > object2.x &&
+                object1.position.y < object2.y + object2.height &&
+                object1.position.y + object1.height > object2.y
+        }
+
+        function showStartScreen() {
+            board.width = meta.board.width
+            board.height = meta.board.height
+
+            context.fillStyle = '#0D0E10'
+            context.fillRect(0, 0, meta.board.width, meta.board.height)
+
+            context.fillStyle = '#E5204C'
+            context.font = '30px Roboto'
+            context.textAlign = 'center'
+            const message = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0) ? 'Tap to Start' : 'Press Space to Start'
+            context.fillText(message, 375, 125)
+
+            window.addEventListener('keydown', event => {
+                if (!meta.canPlay) return
+                if (meta.gameStarted) return
+                if (event.code === 'Space') {
+                    setInterval(update, 1000 / 60)
+                    setInterval(placeCactus, 1000)
+                    document.addEventListener('keydown', event => meta.canPlay && (event.key === 'ArrowUp' || event.key === ' ') && moveDino('up'))
+                    meta.gameStarted = true
+                }
+            })
+
+            window.addEventListener('touchstart', event => {
+                if (!meta.canPlay) return
+                if (meta.gameStarted) return moveDino('up')
+                setInterval(update, 1000 / 60)
+                setInterval(placeCactus, 1000)
+                meta.gameStarted = true
+            })
+
+            function checkWidth() {
+                if (window.innerWidth < 750) {
+                    board.style.display = 'none'
+                    const message = document.createElement('h6')
+                    message.textContent = 'This game is not supported on portrait mode, please switch to landscape mode.'
+                    message.style.color = '#E5204C'
+                    message.style.textAlign = 'center'
+                    document.body.appendChild(message)
+                    meta.canPlay = false
+                } else {
+                    board.style.display = 'block'
+                    document.querySelector('h6') && document.querySelector('h6').remove()
+                    meta.canPlay = true
+                }
+            }
+            checkWidth()
+            window.addEventListener('resize', checkWidth)
+        }
+    })
+</script>
+
+</html>

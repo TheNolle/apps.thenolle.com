@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Weather | Nolly's Apps</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="A simple weather app that shows the current weather of a location.">
+    <meta name="keywords" content="weather, forecast, temperature, humidity, wind speed, visibility, pressure">
+    <meta name="author" content="Nolly">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:title" content="Weather">
+    <meta property="og:description" content="A simple weather app that shows the current weather of a location.">
+    <meta property="og:image" content="favicon.ico">
+    <meta property="og:url" content="https://apps.thenolle.com/weather">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Weather">
+    <meta name="twitter:description" content="A simple weather app that shows the current weather of a location.">
+    <meta name="twitter:image" content="favicon.ico">
+    <meta name="twitter:image:alt" content="Weather">
+    <meta name="twitter:site" content="@thenolly_">
+    <meta name="twitter:creator" content="@thenolly_">
+
+    <script src="https://cdn.thenolle.com/font-awesome-pro/6.5.1/js/all.min.js" defer></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+            user-select: none;
+        }
+
+        html,
+        body {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            color: #fff;
+            background-color: #101113;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app {
+            min-height: 100vh;
+            background-image: url(https://cdn.thenolle.com/images/weather/day.clouds.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: 500ms;
+            opacity: 0;
+        }
+
+        .app::before {
+            z-index: 0;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        .container>div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .city-time,
+        .temp,
+        .weather {
+            margin: 0 1em;
+        }
+
+        .temp {
+            margin: 0;
+            margin-left: 0.5em;
+        }
+
+        .city-time h1 {
+            margin-bottom: 0.2em;
+            font-size: 3em;
+        }
+
+        .temp {
+            font-size: 7em;
+        }
+
+        .weather img {
+            display: block;
+            margin: 0.5em 0;
+        }
+
+        .panel {
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            padding: 3em 2em;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background-color: rgba(110, 110, 110, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            overflow-y: scroll;
+        }
+
+        .panel form {
+            margin-bottom: 3em;
+        }
+
+        .submit {
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 1.5em;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #E5204C;
+            transition: 400ms;
+        }
+
+        .submit:hover {
+            background-color: #FF5A5F !important;
+        }
+
+        .search {
+            background-color: transparent;
+            padding: 0 1em 0.5em 0;
+            width: 80%;
+            font-size: 1.1em;
+            border-bottom: 1px #ccc solid;
+            color: #fff;
+        }
+
+        .search::placeholder {
+            color: #ccc;
+        }
+
+        .panel ul {
+            padding: 0 0 1em 0;
+            margin: 2em 0;
+            border-bottom: 1px #ccc solid;
+            list-style: none;
+        }
+
+        .panel ul li {
+            margin: 2.5em 0;
+            color: #ccc;
+        }
+
+        .panel ul h4 {
+            margin: 3em 0;
+        }
+
+        .city {
+            cursor: pointer;
+            display: block;
+        }
+
+        .city:hover {
+            color: #fff;
+        }
+
+        .details li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        @media screen and (max-width: 800px) {
+            .app {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .panel,
+            .container {
+                position: relative;
+                width: 100%;
+                top: initial;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+            html {
+                font-size: 12px;
+            }
+        }
+
+        @media screen and (max-width: 300px) {
+            .app {
+                min-height: 40em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <div class="container">
+            <h3></h3>
+            <div>
+                <h1 class="temp">00&#176;</h1>
+                <div class="city-time">
+                    <h1 class="name">...</h1>
+                    <small>
+                        <span class="time">00:00</span>
+                        -
+                        <span class="date">Monday Jan 01</span>
+                    </small>
+                </div>
+                <div class="weather">
+                    <img src="" alt="" width="50" height="50" class="icon">
+                    <span class="condition">...</span>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <form id="locationInput">
+                <input type="search" placeholder="Search Location..." class="search">
+                <button type="submit" class="submit"><i class="fa-solid fa-search"></i></button>
+            </form>
+            <ul class="cities">
+                <li class="city">New York</li>
+                <li class="city">London</li>
+                <li class="city">Paris</li>
+                <li class="city">Tokyo</li>
+            </ul>
+            <ul class="details">
+                <h4>Weather Details</h4>
+                <li>
+                    <span>Cloudy</span>
+                    <span class="cloud">00%</span>
+                </li>
+                <li>
+                    <span>Humidity</span>
+                    <span class="humidity">00%</span>
+                </li>
+                <li>
+                    <span>Wind</span>
+                    <span class="wind">00km/h</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.onload = () => {
+        const app = document.querySelector('.app')
+        const tempOutput = document.querySelector('.temp')
+        const dateOutput = document.querySelector('.date')
+        const timeOutput = document.querySelector('.time')
+        const conditionOutput = document.querySelector('.condition')
+        const nameOutput = document.querySelector('.name')
+        const iconOutput = document.querySelector('.icon')
+        const cloudOutput = document.querySelector('.cloud')
+        const humidityOutput = document.querySelector('.humidity')
+        const windOutput = document.querySelector('.wind')
+        const form = document.getElementById('locationInput')
+        const search = document.querySelector('.search')
+        const submitButton = document.querySelector('.submit')
+        const cities = document.querySelectorAll('.city')
+
+        let cityInput = 'Paris'
+
+        cities.forEach(city => city.addEventListener('click', () => {
+            cityInput = city.textContent
+            fetchWeatherData()
+            app.style.opacity = 0
+        }))
+
+        form.addEventListener('submit', e => {
+            e.preventDefault()
+            if (!search.value.trim().length) return alert('Please enter a location')
+            cityInput = search.value.trim()
+            fetchWeatherData()
+            search.value = ''
+            app.style.opacity = 0
+        })
+
+        function dayOfTheWeek(day, month, year) {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            return days[new Date(year, month, day).getDay()]
+        }
+
+        function paddingZero(num) {
+            return num < 10 ? `0${num}` : num
+        }
+
+        async function fetchWeatherData() {
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&appid=c62555bf95f1c0c0e9a76378b3db1485`)
+            const data = await response.json()
+            if (data.cod && data.cod === '404') {
+                alert(data.message)
+                return app.style.opacity = 1
+            }
+            const weather = data.weather[0]
+            const main = data.main
+            const wind = data.wind
+            const clouds = data.clouds.all
+            const date = new Date(data.dt * 1000)
+            const day = date.getDate()
+            const month = date.getMonth()
+            const year = date.getFullYear()
+            const hours = date.getHours()
+            const minutes = date.getMinutes()
+            const icon = weather.icon
+            const temp = Math.round(main.temp - 273.15)
+            const humidity = main.humidity
+            const windSpeed = wind.speed
+
+            tempOutput.textContent = `${temp}°`
+            conditionOutput.textContent = weather.description
+            dateOutput.textContent = `${dayOfTheWeek(day, month, year)} ${day} ${new Intl.DateTimeFormat('en-US', { month: 'short' }).format(new Date(year, month, day))}`
+            timeOutput.textContent = `${paddingZero(hours)}:${paddingZero(minutes)}`
+            nameOutput.textContent = data.name
+            iconOutput.src = `https://openweathermap.org/img/wn/${icon}@4x.png`
+            cloudOutput.textContent = `${clouds}%`
+            humidityOutput.textContent = `${humidity}%`
+            windOutput.textContent = `${windSpeed}km/h`
+
+            let timeOfDay = hours < 6 ? 'night' : hours < 18 ? 'day' : 'night'
+            let weatherType = normalizeWeatherType(weather.main.toLowerCase())
+            function normalizeWeatherType(weatherType) {
+                const unauthorized = ['haze', 'mist']
+                if (unauthorized.includes(weatherType))
+                    weatherType = 'clouds'
+                return weatherType
+            }
+            app.style.backgroundImage = `url(https://cdn.thenolle.com/images/weather/${timeOfDay}.${weatherType}.jpg)`
+
+            app.style.opacity = 1
+        }
+        fetchWeatherData()
+    }
+</script>
+
+</html>

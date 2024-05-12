@@ -1,0 +1,52 @@
+ul.context-menu {
+    z-index: 1000;
+    position: absolute;
+    list-style: none;
+    width: 14rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    color: #fff;
+    background-color: #2d2d2d80;
+    backdrop-filter: blur(10px);
+}
+
+ul.context-menu>li.context-menu-item {
+    cursor: pointer;
+    user-select: none;
+    padding: 0.5rem 1rem;
+}
+
+ul.context-menu>li.context-menu-item:not(.links):hover {
+    background-color: #3d3d3d80;
+}
+
+ul.context-menu>li.context-menu-item.separator {
+    pointer-events: none;
+    height: 1px;
+    margin: 0.5rem 0;
+    padding: 0;
+    background-color: #ffffff80;
+}
+
+ul.context-menu>li.context-menu-item.links {
+    cursor: default;
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+    font-size: 1rem;
+}
+
+ul.context-menu>li.context-menu-item.links>a {
+    text-decoration: none;
+    line-height: 1rem;
+}
+
+ul.context-menu>li.context-menu-item.links>a>svg {
+    fill: #fff;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+ul.context-menu>li.context-menu-item.links>a:hover>svg {
+    fill: #c9c;
+}

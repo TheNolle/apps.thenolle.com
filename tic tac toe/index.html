@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Tic Tac Toe | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Tic Tac Toe">
+    <meta property="og:description" content="A modern Tic Tac Toe game where you play against your friends locally or against the computer.">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/tic%20tac%20toe-og.png">
+    <meta property="og:url" content="https://apps.thenolle.com/tic%20tac%20toe">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            color: #fff;
+            background-color: #101113;
+        }
+
+        .board {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            align-content: center;
+            justify-content: center;
+            grid-template-columns: repeat(3, auto);
+            grid-template-rows: repeat(3, auto);
+            align-items: center;
+            justify-items: center;
+        }
+
+        .board>.cell {
+            cursor: pointer;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #E5204C;
+        }
+
+        .board.x>.cell:not(.x):not(.o):hover::before,
+        .board.x>.cell:not(.x):not(.o):hover::after {
+            background-color: #46081e !important;
+        }
+
+        .board.o>.cell:not(.x):not(.o):hover::before,
+        .board.o>.cell:not(.x):not(.o):hover::after {
+            border-color: #46081e !important;
+        }
+
+        .board>.cell.x,
+        .board>.cell.o {
+            cursor: not-allowed;
+        }
+
+        .board>.cell:nth-child(3n) {
+            border-right: 0;
+        }
+
+        .board>.cell:nth-child(-n+3) {
+            border-top: 0;
+        }
+
+        .board>.cell:nth-child(3n+1) {
+            border-left: 0;
+        }
+
+        .board>.cell:nth-child(n+7) {
+            border-bottom: 0;
+        }
+
+        .board>.cell.x::before,
+        .board>.cell.x::after,
+        .board.x>.cell:not(.x):not(.o):hover::before,
+        .board.x>.cell:not(.x):not(.o):hover::after {
+            content: '';
+            position: absolute;
+            width: 13.5px;
+            height: 90px;
+            background-color: #E5204C;
+        }
+
+        .board>.cell.x::before,
+        .board.x>.cell:not(.x):not(.o):hover::before {
+            transform: rotate(45deg);
+        }
+
+        .board>.cell.x::after,
+        .board.x>.cell:not(.x):not(.o):hover::after {
+            transform: rotate(-45deg);
+        }
+
+        .board>.cell.o::before,
+        .board>.cell.o::after,
+        .board.o>.cell:not(.x):not(.o):hover::before,
+        .board.o>.cell:not(.x):not(.o):hover::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 10px solid #E5204C;
+            border-radius: 50%;
+        }
+
+        .message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background-color: #00000040;
+            backdrop-filter: blur(2.5px);
+        }
+
+        .message.active {
+            display: flex;
+        }
+
+        .message>h2 {
+            font-size: 5rem;
+            font-weight: bold;
+        }
+
+        .message>button {
+            cursor: pointer;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid #E5204C;
+            color: #fff;
+            background-color: #E5204C;
+            transition: background-color 250ms;
+        }
+
+        .message>button:hover {
+            background-color: #46081e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="board"></div>
+    <div class="message">
+        <h2></h2>
+        <button>Restart</button>
+    </div>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', () => {
+        const board = document.querySelector('.board')
+        const message = document.querySelector('.message')
+        const messageTextElement = message.querySelector('h2')
+        const restartButton = message.querySelector('button')
+
+        restartButton.addEventListener('click', () => {
+            message.classList.remove('active')
+            populateBoard()
+        })
+
+        function populateBoard() {
+            board.classList.remove('x', 'o')
+            while (board.firstChild) board.removeChild(board.firstChild)
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('span')
+                cell.classList.add('cell')
+                cell.addEventListener('click', handleCellClick, { once: true })
+                board.appendChild(cell)
+            }
+            board.classList.add(Math.random() < 0.5 ? 'x' : 'o')
+        }
+        populateBoard()
+
+        function handleCellClick(event) {
+            event.preventDefault()
+            const cell = event.target
+            const currentClass = board.classList.contains('x') ? 'x' : 'o'
+            placeMark(cell, currentClass)
+            if (checkCombination(currentClass)) endGame(`${currentClass.toUpperCase()} wins!`)
+            else if (checkDraw()) endGame('Draw!')
+            else switchTurn()
+        }
+
+        function placeMark(cell, currentClass) {
+            cell.classList.add(currentClass)
+        }
+
+        function switchTurn() {
+            board.classList.toggle('x')
+            board.classList.toggle('o')
+        }
+
+        function checkCombination(currentClass) {
+            const combinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+            return combinations.some(combination => {
+                return combination.every(index => {
+                    return board.children[index].classList.contains(currentClass)
+                })
+            })
+        }
+
+        function checkDraw() {
+            return [...board.children].every(cell => {
+                return cell.classList.contains('x') || cell.classList.contains('o')
+            })
+        }
+
+        function endGame(messageText) {
+            message.classList.add('active')
+            messageTextElement.innerText = messageText
+        }
+    })
+</script>
+
+</html>

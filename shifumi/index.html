@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Shifumi | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Shifumi">
+    <meta property="og:description" content="A simple rock-paper-scissors game.">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/shifumi/rock.png">
+    <meta property="og:url" content="https://apps.thenolle.com/shifumi">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <script src="https://cdn.thenolle.com/font-awesome-pro/6.5.1/js/all.min.js" defer></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100vh;
+            width: 100vw;
+            color: #fff;
+            background-color: #101113;
+            user-select: none;
+        }
+
+        .meta {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #202225;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .meta>.user {
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .meta>.user>.avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .meta>.user>.username {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .meta>.user>.dropdown {
+            position: absolute;
+            top: 115%;
+            left: 0;
+            width: 220px;
+            display: none;
+            background-color: #2c2f33;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .meta>.user>.dropdown.active {
+            display: block;
+        }
+
+        .meta>.user>.dropdown>span {
+            cursor: pointer;
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #fff;
+        }
+
+        .meta>.user>.dropdown>span:hover {
+            background-color: #383c42;
+        }
+
+        .meta>.user>.dropdown>span>svg {
+            margin-right: 0.5rem;
+        }
+
+        .meta>.user>.dropdown>span:last-child {
+            border-top: 1px solid #383c42;
+        }
+
+        .game {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: calc(100% - 100px);
+        }
+
+        .game>.board {
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .game>.board>h1 {
+            font-size: 2rem;
+            text-align: center;
+            color: #E5204C;
+        }
+
+        .game>.board>img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+        }
+
+        .game>.choices {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .game>.choices>.choice {
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: #202225;
+            transition: all 0.3s;
+        }
+
+        .game>.choices>.choice:hover,
+        .game>.choices>.choice:active {
+            background-color: #E5204C;
+        }
+
+        .game>.choices>.choice>img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        @media screen and (max-width: 860px) {
+            .game .choices .choice img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="meta">
+        <div class="user" data-user data-score="0">
+            <img class="avatar" src="https://cdn.thenolle.com/images/nolly.png">
+            <span class="username">...</span>
+            <div class="dropdown">
+                <span data-action="change-username"><i class="fa-solid fa-user"></i> Change Username</span>
+                <!-- <span data-action="change-avatar"><i class="fa-solid fa-image"></i> Change Avatar</span> -->
+                <span data-action="logout"><i class="fa-solid fa-sign-out"></i> Logout</span>
+            </div>
+        </div>
+        <span class="score">0 - 0</span>
+        <div class="user" data-robot data-score="0">
+            <span class="username">...</span>
+            <img class="avatar" src="https://cdn.thenolle.com/images/nolly.png" alt="Robot">
+        </div>
+    </nav>
+
+    <div class="game">
+        <div class="board">
+            <h1>Start by choosing a move below.</h1>
+        </div>
+        <div class="choices">
+            <button class="choice" data-choice="rock">
+                <img src="https://cdn.thenolle.com/images/shifumi/rock.png" alt="Rock">
+            </button>
+            <button class="choice" data-choice="paper">
+                <img src="https://cdn.thenolle.com/images/shifumi/paper.png" alt="Paper">
+            </button>
+            <button class="choice" data-choice="scissors">
+                <img src="https://cdn.thenolle.com/images/shifumi/scissors.png" alt="Scissors">
+            </button>
+        </div>
+    </div>
+
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', async () => {
+        const robotDataAll = [{ name: 'R2D2', avatar: 'https://i.imgur.com/AAskzqV.jpeg' }, { name: 'C3PO', avatar: 'https://i.imgur.com/3d0Ppvq.png' }, { name: 'BB8', avatar: 'https://i.imgur.com/OBiVqVO.png' }, { name: 'Wall-E', avatar: 'https://i.imgur.com/4RbObIK.jpeg' }, { name: 'Optimus Prime', avatar: 'https://i.imgur.com/XsI9HOM.png' }, { name: 'Megatron', avatar: 'https://i.imgur.com/LUDvFUW.png' }, { name: 'Bender', avatar: 'https://i.imgur.com/AN5UI3W.png' }, { name: 'Marvin', avatar: 'https://i.imgur.com/oikXBXQ.png' }, { name: 'HAL 9000', avatar: 'https://i.imgur.com/ngYHM3k.png' }, { name: 'GLaDOS', avatar: 'https://i.imgur.com/7QBNyHp.png' }, { name: 'T-800', avatar: 'https://i.imgur.com/l7aez4k.png' }, { name: 'T-1000', avatar: 'https://i.imgur.com/ZFeo5Bh.png' }, { name: 'Ultron', avatar: 'https://i.imgur.com/bmXJNyI.png' }, { name: 'Vision', avatar: 'https://i.imgur.com/5lWLr1k.png' }, { name: 'Data', avatar: 'https://i.imgur.com/TvTGK1a.png' }, { name: 'KITT', avatar: 'https://i.imgur.com/6Srxj0N.png' }, { name: 'Robocop', avatar: 'https://i.imgur.com/ceHgfHz.png' }, { name: 'Johnny 5', avatar: 'https://i.imgur.com/glTKLSw.png' }, { name: 'Baymax', avatar: 'https://i.imgur.com/QMZ9xyG.png' }]
+        const robotData = robotDataAll[Math.floor(Math.random() * robotDataAll.length)]
+
+        const navbar = document.querySelector('.meta')
+        navbar.style.display = 'flex'
+        const user = navbar.querySelector('.user[data-user]')
+        const userAvatar = user.querySelector('.avatar')
+        const userName = user.querySelector('.username')
+        const userDropdown = user.querySelector('.dropdown')
+        const robot = navbar.querySelector('.user[data-robot]')
+        const robotAvatar = robot.querySelector('.avatar')
+        const robotName = robot.querySelector('.username')
+        const score = navbar.querySelector('.score')
+
+        const game = document.querySelector('.game')
+        game.style.display = 'flex'
+        const board = game.querySelector('.board')
+        const choices = game.querySelector('.choices')
+        const choiceButtons = game.querySelectorAll('.choice')
+
+        function requestUsername() {
+            return prompt('Please enter your username:')
+        }
+
+        // async function isAnImageURL(url) {
+        //     const res = await fetch(url)
+        //     const buff = await res.blob()
+        //     return buff.type.startsWith('image/')
+        // }
+
+        async function setUserData() {
+            function getUserName() {
+                const localUsername = localStorage.getItem('shifumi-username')
+                if (localUsername) return localUsername
+                const username = requestUsername()
+                if (!username) return 'Anonymous'
+                if (username.length > 20) return alert('Username must be less than 20 characters.') || getUserName()
+                const store = confirm('Do you want to store your username for future visits?')
+                if (store) localStorage.setItem('shifumi-username', username)
+                return username
+            }
+            userName.textContent = getUserName()
+            robotName.textContent = robotData.name
+
+            // async function getUserAvatar() {
+            //     const localAvatar = localStorage.getItem('shifumi-avatar')
+            //     if (localAvatar) return localAvatar
+            //     const avatar = prompt('Please enter the URL of your avatar:')
+            //     if (!avatar) return 'https://cdn.thenolle.com/images/nolly.png'
+            //     console.log(avatar)
+            //     const valid = await isAnImageURL(avatar)
+            //     if (!valid) return alert('Invalid image URL.') || await getUserAvatar()
+            //     const store = confirm('Do you want to store your avatar for future visits?')
+            //     if (store) localStorage.setItem('shifumi-avatar', avatar)
+            //     return avatar
+            // }
+            // userAvatar.src = 'https://cdn.thenolle.com/images/nolly.png'
+            robotAvatar.src = robotData.avatar
+        }
+        setUserData()
+
+        function assignDropdownActions() {
+            document.addEventListener('click', (event) => !event.target.closest('.user') && userDropdown.classList.remove('active'))
+            user.addEventListener('click', () => userDropdown.classList.toggle('active'))
+            userDropdown.querySelector('[data-action="change-username"]').addEventListener('click', () => {
+                const username = requestUsername()
+                if (username) {
+                    if (username.length > 20) {
+                        alert('Username must be less than 20 characters.')
+                    } else {
+                        localStorage.setItem('shifumi-username', username)
+                        userName.textContent = username
+                    }
+                }
+            })
+            // userDropdown.querySelector('[data-action="change-avatar"]').addEventListener('click', async () => {
+            //     const avatar = prompt('Please enter the URL of your avatar:')
+            //     if (avatar) {
+            //         const valid = await isAnImageURL(avatar)
+            //         if (valid) {
+            //             localStorage.setItem('shifumi-avatar', avatar)
+            //             userAvatar.src = avatar
+            //         } else {
+            //             alert('Invalid image URL.')
+            //         }
+            //     }
+            // })
+            userDropdown.querySelector('[data-action="logout"]').addEventListener('click', () => Object.keys(localStorage).filter(key => key.startsWith('shifumi-')).forEach(key => localStorage.removeItem(key)) || location.reload())
+        }
+        assignDropdownActions()
+
+        function play(choice) {
+            const robotChoice = ['rock', 'paper', 'scissors'][Math.floor(Math.random() * 3)]
+            const result = {
+                rock: { rock: 'draw', paper: 'lose', scissors: 'win' },
+                paper: { rock: 'win', paper: 'draw', scissors: 'lose' },
+                scissors: { rock: 'lose', paper: 'win', scissors: 'draw' }
+            }[choice][robotChoice]
+            const userImage = document.createElement('img')
+            userImage.src = `https://cdn.thenolle.com/images/shifumi/${choice}.png`
+            const robotImage = document.createElement('img')
+            robotImage.src = `https://cdn.thenolle.com/images/shifumi/${robotChoice}.png`
+            board.innerHTML = ''
+            board.append(userImage, robotImage)
+            if (result === 'win') user.dataset.score = Number(user.dataset.score) + 1
+            else if (result === 'lose') robot.dataset.score = Number(robot.dataset.score) + 1
+            score.textContent = `${user.dataset.score} - ${robot.dataset.score}`
+        }
+
+        choiceButtons.forEach(button => button.addEventListener('click', () => play(button.dataset.choice)))
+    })
+</script>
+
+</html>

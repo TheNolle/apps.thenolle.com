@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Hangman | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Hangman">
+    <meta property="og:description" content="A simple hangman game built with HTML, CSS, and JavaScript.">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/hangman/step_6.png">
+    <meta property="og:url" content="https://apps.thenolle.com/hangman">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background-color: #101113;
+            color-scheme: dark;
+            user-select: none;
+        }
+
+        img {
+            filter: invert(1);
+            max-width: 270px;
+        }
+
+        .container {
+            max-width: 860px;
+            width: 100%;
+            display: none;
+            align-items: flex-end;
+            gap: 70px;
+        }
+
+        .container>.box>h1 {
+            font-size: 1.45rem;
+            text-align: center;
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+
+        .container>.game>.display {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .container>.game>.display>.letter {
+            width: 28px;
+            font-size: 2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 3px solid #fff;
+        }
+
+        .container>.game>.display>.letter.guessed {
+            border: none;
+            margin: -20px 0 0;
+        }
+
+        .container>.game>.guesses {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 40px;
+        }
+
+        .container>.game>.guesses>b {
+            color: #ff6666;
+        }
+
+        .container>.game>.keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 60px;
+        }
+
+        .container>.game>.keyboard>button {
+            cursor: pointer;
+            width: calc(100% / 9 - 10px);
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 7px;
+            border-radius: 4px;
+            background-color: #E5204C;
+        }
+
+        .container>.game>.keyboard>button:hover,
+        .container>.game>.keyboard>button:focus {
+            background-color: #FF5A5F;
+        }
+
+        .container>.game>.keyboard>button:disabled {
+            cursor: not-allowed;
+            background-color: #c41a42;
+        }
+
+        @media screen and (max-width: 860px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .container>.game>.keyboard {
+                max-width: 480px;
+                width: 100%;
+            }
+
+            .container>.game>.keyboard>button {
+                width: calc(100% / 7 - 10px);
+                padding: 10px;
+            }
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .modal>.content {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            color: #000;
+            background-color: #f9f9f9;
+        }
+
+        .modal>.content>h4 {
+            font-size: 1.53rem;
+        }
+
+        .modal>.content>p {
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin: 15px 0 30px;
+        }
+
+        .modal>.content>p>b {
+            color: #ff6666;
+        }
+
+        .modal>.content>button {
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 7px 20px;
+            border-radius: 4px;
+            background-color: #E5204C;
+        }
+
+        .modal>.content>button:hover,
+        .modal>.content>button:focus {
+            background-color: #FF5A5F;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="box">
+            <h1>Hangman Game</h1>
+        </div>
+        <div class="game">
+            <ul class="display"></ul>
+            <h4 class="guesses"><span>Incorrect guesses:</span> <b>0 / 6</b></h4>
+            <div class="keyboard"></div>
+        </div>
+    </div>
+    <div class="modal">
+        <div class="content">
+            <h4>Game Over !</h4>
+            <p>The correct word was: <b></b></p>
+            <button>Play Again</button>
+        </div>
+    </div>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.onload = () => {
+        const box = document.querySelector('.box')
+        const container = document.querySelector('.container')
+        const display = document.querySelector('.display')
+        const guessesDisplay = document.querySelector('.guesses>b')
+        const keyboard = document.querySelector('.keyboard')
+        const modal = document.querySelector('.modal')
+        const modalH4 = modal.querySelector('h4')
+        const modalWord = modal.querySelector('p>b')
+        const modalButton = modal.querySelector('button')
+
+        let word = ''
+        let guesses = 0
+        let playing = false
+
+        function showHangman(step) {
+            box.querySelector('#hangman')?.remove()
+            box.insertAdjacentHTML('afterbegin', `<img id="hangman" src="https://cdn.thenolle.com/images/hangman/step_${step}.png" alt="Hangman">`)
+        }
+
+        function populateKeyboard() {
+            while (keyboard.firstChild)
+                keyboard.removeChild(keyboard.firstChild)
+            const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
+            letters.forEach(letter => {
+                const button = document.createElement('button')
+                button.textContent = letter
+                button.dataset.letter = letter
+                button.addEventListener('click', () => guess(button))
+                keyboard.appendChild(button)
+            })
+        }
+
+        async function getRandomWord() {
+            const response = await fetch('./words.json')
+            const words = await response.json()
+            return words[Math.floor(Math.random() * words.length)]
+        }
+
+        function populateDisplay(word) {
+            while (display.firstChild)
+                display.removeChild(display.firstChild)
+            word.split('').forEach(letter => {
+                const li = document.createElement('li')
+                li.classList.add('letter')
+                if (letter === ' ') {
+                    li.classList.add('guessed')
+                    li.textContent = ' '
+                }
+                display.appendChild(li)
+            })
+        }
+
+        async function resetGame() {
+            word = await getRandomWord()
+            guesses = 0
+            playing = true
+            showHangman(0)
+            populateKeyboard()
+            populateDisplay(word)
+            Modal(false)
+            guessesDisplay.textContent = `${guesses} / 6`
+        }
+
+        function Modal(show, won = false) {
+            playing = !show
+            modal.style.display = show ? 'flex' : 'none'
+            modalH4.textContent = won ? 'Congratulations !' : 'Game Over !'
+            modalWord.textContent = word
+            modalButton.addEventListener('click', resetGame)
+        }
+
+        function guess(button) {
+            if (button.disabled || guesses === 6 || !playing)
+                return
+            const letter = button.dataset.letter
+            if (word.includes(letter)) {
+                [...word].forEach((char, index) => {
+                    if (char === letter) {
+                        display.children[index].textContent = char
+                        display.children[index].classList.add('guessed')
+                    }
+                })
+                if ([...display.children].every(li => li.classList.contains('guessed')))
+                    Modal(true, true)
+            }
+            else {
+                guesses++
+                showHangman(guesses)
+            }
+            guessesDisplay.textContent = `${guesses} / 6`
+            button.disabled = true
+
+            if (guesses === 6)
+                Modal(true)
+        }
+
+        container.style.display = 'flex'
+        resetGame()
+        document.addEventListener('keydown', event => {
+            if (event.key.match(/[a-z]/i)) {
+                const button = keyboard.querySelector(`button[data-letter="${event.key}"]`)
+                if (button && !button.disabled)
+                    guess(button)
+            }
+        })
+        document.addEventListener('keyup', event => {
+            if (event.key === 'Enter' && !playing)
+                modalButton.click()
+        })
+    }
+</script>
+
+</html>

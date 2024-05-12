@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Connect 4 | Nolly's Apps</title>
+
+    <meta property="og:title" content="Connect 4">
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://cdn.thenolle.com/images/connect%204-og.png">
+    <meta property="og:url" content="https://apps.thenolle.com/connect%204">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            font-family: 'Roboto', sans-serif;
+            user-select: none;
+        }
+
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            color: #fff;
+            background-color: #101113;
+        }
+
+        .winner {
+            display: none;
+            min-height: 3rem;
+            text-align: center;
+            font-size: 2rem;
+            margin: 1rem 0;
+        }
+
+        .winner.red {
+            color: #E5204C;
+        }
+
+        .winner.yellow {
+            color: #FFD166;
+        }
+
+        .board {
+            width: 630px;
+            height: 540px;
+            display: none;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 0.25rem;
+            padding: 0.25rem;
+            margin: 0 auto;
+            border: 0.5rem solid #E5204C;
+            background-color: #f2a4b8;
+        }
+
+        .board>.cell {
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 0.25rem solid #E5204C;
+            background-color: #101113;
+        }
+
+        .board.red>.cell:hover {
+            background-color: #E5204C;
+        }
+
+        .board.yellow>.cell:hover {
+            background-color: #FFD166;
+        }
+
+        .board>.cell.red {
+            background-color: #E5204C;
+        }
+
+        .board>.cell.yellow {
+            background-color: #FFD166;
+        }
+
+        button {
+            cursor: pointer;
+            display: none;
+            padding: 10px 30px;
+            margin: 0 auto;
+            margin-top: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid #E5204C;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+            color: #fff;
+            background-color: #E5204C;
+            transition: background-color 250ms;
+        }
+
+        button:hover,
+        button:active {
+            background-color: #46081e;
+        }
+
+        @media screen and (max-height: 600px) {
+            html,
+            body {
+                display: grid;
+                place-items: center;
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .winner {
+                font-size: 1.5rem;
+                margin: 0 auto;
+            }
+
+            .board {
+                width: 450px;
+                height: 400px;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .winner {
+                font-size: 1.5rem;
+            }
+
+            .board {
+                width: 350px;
+                height: 300px;
+            }
+        }
+
+        @media screen and (max-height: 500px) {
+            .winner {
+                font-size: 1.25rem;
+            }
+
+            .board {
+                width: 350px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2 class="winner"></h2>
+    <div class="board"></div>
+    <button>Reset</button>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', () => {
+        const winner = document.querySelector('.winner')
+        winner.style.display = 'block'
+        const board = document.querySelector('.board')
+        board.style.display = 'grid'
+        const resetButton = document.querySelector('button')
+
+        const meta = {
+            gameOver: false,
+            board: {
+                rows: 6,
+                cols: 7,
+                cells: [],
+                currentColumns: []
+            },
+            current: '',
+            players: {
+                red: 'red',
+                yellow: 'yellow'
+            }
+        }
+
+        function reset() {
+            meta.gameOver = false
+            meta.current = meta.players.red
+            meta.board.cells = []
+            board.classList.add(meta.players.red)
+            board.classList.remove(meta.players.yellow)
+            meta.board.currentColumns = Array(meta.board.cols).fill(meta.board.rows - 1)
+            while (board.firstChild) board.removeChild(board.firstChild)
+            for (let row = 0; row < meta.board.rows; row++) {
+                meta.board.cells[row] = []
+                for (let col = 0; col < meta.board.cols; col++) {
+                    meta.board.cells[row][col] = ''
+                    const cell = document.createElement('div')
+                    cell.classList.add('cell')
+                    cell.id = `${row}-${col}`
+                    cell.addEventListener('click', setPiece)
+                    board.appendChild(cell)
+                }
+            }
+            winner.textContent = 'Red\'s turn'
+            winner.classList.add(meta.players.red)
+            winner.classList.remove(meta.players.yellow)
+            resetButton.style.display = 'none'
+        }
+        reset()
+        resetButton.addEventListener('click', reset)
+
+        function setPiece() {
+            if (meta.gameOver) return
+            const col = parseInt(this.id.split('-')[1])
+            if (meta.board.currentColumns[col] < 0) return
+            const row = meta.board.currentColumns[col]
+            meta.board.cells[row][col] = meta.current
+            const cell = document.getElementById(`${row}-${col}`)
+            cell.classList.add(meta.current)
+            if (checkWinner()) return
+            meta.current = meta.current === meta.players.red ? meta.players.yellow : meta.players.red
+            board.classList.toggle(meta.players.red)
+            board.classList.toggle(meta.players.yellow)
+            winner.classList.toggle(meta.players.red)
+            winner.classList.toggle(meta.players.yellow)
+            winner.textContent = `${meta.current.charAt(0).toUpperCase()}${meta.current.slice(1)}'s turn`
+            meta.board.currentColumns[col]--
+        }
+
+        function checkWinner() {
+            for (let row = 0; row < meta.board.rows; row++) {
+                for (let col = 0; col < meta.board.cols; col++) {
+                    if (meta.board.cells[row][col] === '') continue
+                    if (col + 3 < meta.board.cols &&
+                        meta.board.cells[row][col] === meta.board.cells[row][col + 1] &&
+                        meta.board.cells[row][col] === meta.board.cells[row][col + 2] &&
+                        meta.board.cells[row][col] === meta.board.cells[row][col + 3]) {
+                        return setWinner(meta.board.cells[row][col])
+                    }
+                    if (row + 3 < meta.board.rows &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 1][col] &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 2][col] &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 3][col]) {
+                        return setWinner(meta.board.cells[row][col])
+                    }
+                    if (row + 3 < meta.board.rows && col + 3 < meta.board.cols &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 1][col + 1] &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 2][col + 2] &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 3][col + 3]) {
+                        return setWinner(meta.board.cells[row][col])
+                    }
+                    if (row + 3 < meta.board.rows && col - 3 >= 0 &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 1][col - 1] &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 2][col - 2] &&
+                        meta.board.cells[row][col] === meta.board.cells[row + 3][col - 3]) {
+                        return setWinner(meta.board.cells[row][col])
+                    }
+                }
+            }
+            return false
+        }
+
+        function setWinner(player) {
+            meta.gameOver = true
+            winner.textContent = `${player.charAt(0).toUpperCase()}${player.slice(1)} wins!`
+            board.classList.remove(meta.players.red)
+            board.classList.remove(meta.players.yellow)
+            resetButton.style.display = 'block'
+            return true
+        }
+    })
+</script>
+
+</html>
