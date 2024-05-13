@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Video Player | Nolly's Apps</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Video Player">
+    <meta property="og:description"
+        content="A custom html5 video player made for a modern and sleek look and feel. Fully responsive and easy to use, with a clean and minimal design.">
+    <meta property="og:image" content="https://cdn.thenolle.com/video%20player/preview.png">
+    <meta property="og:url" content="https://apps.thenolle.com/video%20player">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nolly's Apps">
+    <meta property="og:locale" content="en_US">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background-color: #101113;
+        }
+
+        .container {
+            position: relative;
+            width: 1024px;
+            height: 576px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .container>video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #000;
+        }
+
+        .container>video::-webkit-media-controls-panel {
+            display: none !important;
+            opacity: 0 !important;
+        }
+
+        .container>nav.meta {
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 32px;
+            padding-top: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            row-gap: 8px;
+            background: linear-gradient(to bottom, #00000040 15%, transparent 100%);
+        }
+
+        .container>nav.meta>.title {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .container>nav.meta>.author {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .container>nav.meta>.author>span {
+            font-weight: 700;
+        }
+
+        .container>footer.controls {
+            z-index: 1;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: grid;
+            grid-template-areas: "timeline" "utils";
+            grid-template-rows: 4.5px 2rem;
+            row-gap: 8px;
+            padding-bottom: 10px;
+            background-color: transparent;
+        }
+
+        .container>footer.controls>.timeline {
+            grid-area: timeline;
+            position: relative;
+            height: 100%;
+            background-color: #00000040;
+            --progress: 0%;
+            --progress-preview: 0%;
+        }
+
+        .container>footer.controls>.timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--progress);
+            height: 100%;
+            background-color: #fff;
+        }
+
+        .container>footer.controls>.timeline::after {
+            z-index: 1;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--progress-preview);
+            height: 100%;
+            background-color: #dddddd40;
+        }
+
+        .container>footer.controls>.utils {
+            grid-area: utils;
+            display: grid;
+            grid-template-areas: "buttons" "time" "special";
+            grid-template-rows: 1fr;
+            grid-template-columns: auto 1fr auto;
+            row-gap: 8px;
+            overflow: hidden;
+        }
+
+        .container>footer.controls>.utils>.buttons {
+            grid-area: buttons;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            column-gap: 8px;
+        }
+
+        .container>footer.controls>.utils>.buttons>button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            column-gap: 8px;
+        }
+
+        .container>footer.controls>.utils>.buttons>button>span {
+            display: none;
+        }
+
+        .container>footer.controls>.utils>.buttons>button>input[type="range"] {
+            width: 100px;
+            height: 4px;
+            background-color: #00000040;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .container>footer.controls>.utils>.time {
+            grid-area: time;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            column-gap: 8px;
+        }
+
+        .container>footer.controls>.utils>.time>span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .container>footer.controls>.utils>.special {
+            grid-area: special;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            column-gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <nav class="meta">
+            <span class="title">color test 4k 60fps</span>
+            <span class="author">Created by <span>LG</span></span>
+        </nav>
+        <video playsinline autoplay></video>
+        <footer class="controls">
+            <div class="timeline"></div>
+            <div class="utils">
+                <div class="buttons">
+                    <button class="play-pause">
+                        <span data-svg="play.svg" data-state="play"></span>
+                        <span data-svg="pause.svg" data-state="pause"></span>
+                    </button>
+                    <button class="next">
+                        <span data-svg="next.svg"></span>
+                    </button>
+                    <button class="volume">
+                        <span data-svg="volume-high.svg" data-volume="high"></span>
+                        <span data-svg="volume-low.svg" data-volume="low"></span>
+                        <span data-svg="volume-mute.svg" data-volume="mute"></span>
+                        <span data-svg="volume-off.svg" data-volume="off"></span>
+                        <input type="range">
+                    </button>
+                </div>
+                <div class="time">
+                    <span>00:00</span>
+                    <span>00:00</span>
+                </div>
+                <div class="special">
+                    <button class="options">
+                        <span data-svg="options.svg"></span>
+                        <div class="options-container">
+                            <span>Placeholder</span>
+                        </div>
+                    </button>
+                    <button class="fullscreen">
+                        <span data-svg="fullscreen-enter.svg" data-state="enter"></span>
+                        <span data-svg="fullscreen-exit.svg" data-state="exit"></span>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <noscript><style>details>ol>li,details>summary{margin-bottom:.5rem}a,details>summary:hover,details[open]>summary,h1{color:#2f7}*{cursor:default;user-select:none;margin:0;padding:0;border:none;outline:0;font-family:Roboto,sans-serif}body{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;color:#fff;background-color:#333}h1{font-size:2rem;margin-bottom:1rem}details{margin-top:2rem}details>summary{cursor:pointer;font-size:1.2rem;font-weight:700}details>ol{list-style-type:decimal;margin-left:2rem}details>p{margin-top:1rem}a{cursor:pointer;text-decoration:none}a:hover{text-decoration:underline}</style><h1>How to enable JavaScript in your browser</h1><details><summary>Google Chrome</summary><ol><li>On your computer, open Chrome.</li><li>Go to a site that wants to use javascript.</li><li>To the left of the web address, click Lock or Info.</li><li>At the bottom, click Site settings.</li><li>In the new tab, to the right of "JavaScript," click the Down arrow.</li><li>Select Allow.</li><li>Go back to the site and reload the page.</li></ol><p>For more information, visit<a href="https://support.google.com/chrome/answer/114662?co=GENIE.Platform%3DDesktop&hl=en" target="_blank" rel="noopener">Google Chrome Help</a></p></details><details><summary>Firefox</summary><ol><li>Click the menu button and select Preferences.</li><li>Select the Privacy & Security panel.</li><li>Scroll down to the Permissions section.</li><li>Check the box next to Enable JavaScript.</li><li>Close the Preferences page.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.mozilla.org/en-US/kb/javascript-settings-for-interactive-web-pages" target="_blank" rel="noopener">Mozilla Firefox Help</a></p></details><details><summary>Microsoft Edge</summary><ol><li>Click the menu button and select Settings.</li><li>Click on View advanced settings.</li><li>Scroll down to the JavaScript section and set the toggle to Allowed (recommended).</li><li>Close the Settings tab.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.microsoft.com/en-us/microsoft-edge" target="_blank" rel="noopener">Microsoft Edge Help</a></p></details><details><summary>Safari</summary><ol><li>Click on Safari in the top Apple menu, and then select Preferences.</li><li>Click on the Security tab.</li><li>Check the Enable JavaScript checkbox.</li><li>Close the Preferences window.</li><li>Click the Reload current page button of the web browser to refresh the page.</li></ol><p>For more information, visit<a href="https://support.apple.com/guide/safari/browse-the-web-ibrw1069/mac" target="_blank" rel="noopener">Apple Safari Help</a></p></details></noscript>
+</body>
+
+<script defer>
+    window.addEventListener('load', () => {
+        alert('This is still WIP please do not take into account the design for now, the functionality is what matters. Thank you! - Nolly')
+
+        const container = document.querySelector('.container')
+        container.style.display = 'flex'
+        const video = container.querySelector('video')
+        const meta = container.querySelector('nav.meta')
+        const metaTitle = meta.querySelector('.title')
+        const metaAuthor = meta.querySelector('.author>span')
+        const controls = container.querySelector('footer.controls')
+        const timeline = controls.querySelector('.timeline')
+        const playPause = controls.querySelector('.play-pause')
+        const playSVG = playPause.querySelector('[data-state="play"]')
+        const pauseSVG = playPause.querySelector('[data-state="pause"]')
+        const next = controls.querySelector('.next')
+        const volume = controls.querySelector('.volume')
+        const volumeRange = volume.querySelector('input[type="range"]')
+        const volumeHigh = volume.querySelector('[data-volume="high"]')
+        const volumeLow = volume.querySelector('[data-volume="low"]')
+        const volumeMute = volume.querySelector('[data-volume="mute"]')
+        const volumeOff = volume.querySelector('[data-volume="off"]')
+        const time = controls.querySelector('.time')
+        const timeCurrent = time.querySelector('span:first-of-type')
+        const timeDuration = time.querySelector('span:last-of-type')
+        const special = controls.querySelector('.special')
+        const options = special.querySelector('.options')
+        const optionsSVG = options.querySelector('[data-svg]')
+        const optionsContainer = options.querySelector('.options-container')
+        const fullscreen = special.querySelector('.fullscreen')
+        const fullscreenEnter = fullscreen.querySelector('[data-state="enter"]')
+        const fullscreenExit = fullscreen.querySelector('[data-state="exit"]')
+
+        const videos = [
+            { src: 'https://cdn.thenolle.com/video%20player/cinematic%20landscape%204k.mp4', title: 'cinematic landscape 4k', author: 'Andrew J Clarke' },
+            { src: 'https://cdn.thenolle.com/video%20player/color%20test%204k%2060fps.mp4', title: 'color test 4k 60fps', author: 'LG' },
+            { src: 'https://cdn.thenolle.com/video%20player/costa%20rica%204k%2060fps.mp4', title: 'costa rica 4k 60fps', author: 'Jacob + Katie Schwarz' },
+            { src: 'https://cdn.thenolle.com/video%20player/landscapes%204k.mp4', title: 'landscapes 4k', author: 'Dustin Farrell' }
+        ]
+
+        function loadVideo(index) {
+            video.src = videos[index].src
+            metaTitle.textContent = videos[index].title
+            metaAuthor.textContent = videos[index].author
+            video.play()
+        }
+        loadVideo(0)
+
+        function replaceSVG() {
+            document.querySelectorAll('[data-svg]').forEach(svg => {
+                fetch(`https://cdn.thenolle.com/video%20player/${svg.dataset.svg}`)
+                    .then(res => res.text())
+                    .then(data => {
+                        const parser = new DOMParser()
+                        const doc = parser.parseFromString(data, 'image/svg+xml')
+                        const newSvg = doc.documentElement
+                        for (const attr of svg.attributes)
+                            if (attr.name !== 'data-svg')
+                                newSvg.setAttribute(attr.name, attr.value)
+                        svg.replaceWith(newSvg)
+                    })
+            })
+        }
+        replaceSVG()
+
+        function seek(time) {
+            video.currentTime = time
+            video.play()
+        }
+
+        function setVideoEvents() {
+            video.onloadedmetadata = () => timeDuration.textContent = new Date(video.duration * 1000).toISOString().substr(14, 5)
+            video.ontimeupdate = () => {
+                timeCurrent.textContent = new Date(video.currentTime * 1000).toISOString().substr(14, 5)
+                timeline.style.setProperty('--progress', `${video.currentTime / video.duration * 100}%`)
+            }
+            video.onseeking = () => {
+                timeline.style.setProperty('--progress', `${video.currentTime / video.duration * 100}%`)
+                timeline.style.setProperty('--progress-preview', `${video.currentTime / video.duration * 100}%`)
+            }
+            video.onended = () => {
+                const index = videos.findIndex(vid => vid.src === video.src)
+                loadVideo(index === videos.length - 1 ? 0 : index + 1)
+            }
+            video.onclick = () => playPause.click()
+            video.ondblclick = () => fullscreen.click()
+
+            timeline.onclick = event => seek(video.duration * (event.offsetX / timeline.offsetWidth))
+            timeline.onmousedown = () => video.pause()
+            timeline.onmouseup = () => video.play()
+            timeline.onmousemove = event => {
+                timeline.style.setProperty('--progress-preview', `${(event.offsetX / timeline.offsetWidth) * 100}%`)
+                timeline.style.setProperty('--progress', `${video.currentTime / video.duration * 100}%`)
+            }
+            timeline.onmouseenter = () => {
+                timeline.style.setProperty('--progress-preview', `${video.currentTime / video.duration * 100}%`)
+            }
+            timeline.onmouseleave = () => {
+                timeline.style.setProperty('--progress-preview', `${video.currentTime / video.duration * 100}%`)
+            }
+
+            document.onkeydown = event => {
+                event.key === 'ArrowRight' && seek(video.currentTime + 5)
+                event.key === 'ArrowLeft' && seek(video.currentTime - 5)
+            }
+            document.onfullscreenchange = () => {
+                if (document.fullscreenElement) {
+                    fullscreenEnter.style.display = 'none'
+                    fullscreenExit.style.display = 'block'
+                } else {
+                    fullscreenEnter.style.display = 'block'
+                    fullscreenExit.style.display = 'none'
+                }
+            }
+        }
+        setVideoEvents()
+
+        function setPlayPauseEvents() {
+            playPause.onclick = () => {
+                if (video.paused) {
+                    video.play()
+                    playSVG.style.display = 'none'
+                    pauseSVG.style.display = 'block'
+                } else {
+                    video.pause()
+                    playSVG.style.display = 'block'
+                    pauseSVG.style.display = 'none'
+                }
+            }
+            document.addEventListener('keyup', event => event.key === ' ' && playPause.click())
+        }
+        setPlayPauseEvents()
+
+        function setNextEvents() {
+            next.onclick = () => {
+                const index = videos.findIndex(vid => vid.src === video.src)
+                loadVideo(index === videos.length - 1 ? 0 : index + 1)
+            }
+            document.addEventListener('keyup', event => event.altKey && event.key === 'n' && next.click())
+        }
+        setNextEvents()
+
+        function setVolumeEvents() {
+            volumeRange.oninput = () => video.volume = volumeRange.value / 100
+            volume.onclick = () => {
+                if (video.volume) {
+                    video.volume = 0
+                    volumeHigh.style.display = 'none'
+                    volumeLow.style.display = 'none'
+                    volumeMute.style.display = 'none'
+                    volumeOff.style.display = 'block'
+                    console.log('muted', video.volume, volumeHigh, volumeLow, volumeMute, volumeOff)
+                } else {
+                    video.volume = volumeRange.value / 100
+                    volumeHigh.style.display = volumeRange.value >= 50 ? 'block' : 'none'
+                    volumeLow.style.display = volumeRange.value < 50 && volumeRange.value > 0 ? 'block' : 'none'
+                    volumeMute.style.display = 'block'
+                    volumeOff.style.display = 'none'
+                    console.log('unmuted', video.volume, volumeHigh, volumeLow, volumeMute, volumeOff)
+                }
+            }
+            document.addEventListener('keyup', event => event.key === 'm' && volume.click())
+        }
+        setVolumeEvents()
+    })
+</script>
+
+</html>
